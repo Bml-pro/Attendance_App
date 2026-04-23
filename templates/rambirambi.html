@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Rambirambi Events</h2>
+
+<div class="card mb-4">
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
+<label>Voice Category</label>
+
+<select id="category" class="form-select" required>
+<option value="" selected disabled>-- Select Category --</option>
+
+{% for cat in categories %}
+<option value="{{ cat }}">{{ cat }}</option>
+{% endfor %}
+
+</select>
+</div>
+
+<div class="mb-3">
+<label>Choir Member Needing Support</label>
+
+<select name="member_id" id="member" class="form-select" required>
+<option value="" selected disabled>-- Select Member --</option>
+</select>
+
+</div>
+
+<div class="mb-3">
+<label>Description</label>
+<input type="text" name="description" class="form-control">
+</div>
+
+<button class="btn btn-primary">Create Event</button>
+
+</form>
+
+</div>
+</div>
+
+
+<h4>Existing Events</h4>
+
+<table class="table table-bordered">
+
+<tr>
+<th>Member</th>
+<th>Description</th>
+<th>Date</th>
+</tr>
+
+{% for e in events %}
+
+<tr>
+<td>{{ e.member.name }}</td>
+<td>{{ e.description }}</td>
+<td>{{ e.date_created }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+
+<script>
+
+const membersByCategory = {{ members_by_category | tojson }};
+const categorySelect = document.getElementById("category");
+const memberSelect = document.getElementById("member");
+
+categorySelect.addEventListener("change", function(){
+
+    const category = this.value;
+    const members = membersByCategory[category] || [];
+
+    memberSelect.innerHTML = '<option value="" disabled selected>-- Select Member --</option>';
+
+    members.forEach(m => {
+
+        const option = document.createElement("option");
+        option.value = m.id;
+        option.text = m.name;
+
+        memberSelect.appendChild(option);
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

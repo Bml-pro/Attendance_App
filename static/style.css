@@ -1,0 +1,145 @@
+/* ===== Global ===== */
+body {
+  background-color: #f8fafc;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.nav-link {
+  margin-left: 1rem;
+  transition: color 0.2s ease;
+}
+.nav-link:hover {
+  color: #ffe082 !important;
+}
+
+/* ===== Cards ===== */
+.card {
+  border-radius: 1rem;
+  border: none;
+}
+.card-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* ===== Tables ===== */
+.table th {
+  background-color: #0d6efd;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.table td, .table th {
+  padding: 0.75rem;
+}
+.table-hover tbody tr:hover {
+  background-color: #e9f5ff;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #0b5ed7;
+}
+.btn-outline-secondary:hover {
+  background-color: #f1f1f1;
+}
+
+/* ===== Charts Area ===== */
+.card-body > div {
+  overflow-x: auto; /* handle wide charts */
+}
+
+/* ===== Global Background ===== */
+body {
+  background-color: #f1f5f9; /* soft light blue-gray */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* ===== Card Background ===== */
+.card {
+  background-color: #ffffff; /* white for cards */
+  border-radius: 1rem;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Optional: slightly different table background */
+.table-hover tbody tr:hover {
+  background-color: #e0f2fe; /* soft blue hover */
+}
+
+.navbar {
+  background-color: #0b5ed7; /* darker blue for navbar */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+  background-color: #0b5ed7;
+  border: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0a58ca;
+}
+
+.btn-outline-secondary {
+  border-color: #0b5ed7;
+  color: #0b5ed7;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #0b5ed7;
+  color: #fff;
+}
+
+/* ===== Chart Cards ===== */
+.card-body > div {
+  background-color: #f8fafc;  /* light soft background */
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.card-body h4.card-title {
+  color: #0b5ed7; /* match navbar/buttons */
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.table .btn {
+  font-size: 0.9rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.card {
+    border-radius: 15px;
+    border: none;
+}
+
+.card h3 {
+    font-weight: bold;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    transition: 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h3>Announcements</h3>
+
+<div class="card mb-4">
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
+<label class="form-label">Title</label>
+<input type="text" name="title" class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">Announcement</label>
+<textarea name="content" class="form-control" rows="4" required></textarea>
+</div>
+
+<button class="btn btn-primary">Publish Announcement</button>
+
+</form>
+
+</div>
+</div>
+
+
+<h4>Published Announcements</h4>
+
+{% for a in announcements %}
+
+<div class="card mb-3">
+<div class="card-body">
+
+<h5>{{ a.title }}</h5>
+
+<p>{{ a.content }}</p>
+
+<small class="text-muted">
+Published: {{ a.created_at }}
+</small>
+
+<br><br>
+
+<a href="{{ url_for('delete_announcement', id=a.id) }}" 
+class="btn btn-danger btn-sm">
+Delete
+</a>
+
+</div>
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>📢 Announcements</h3>
+
+<a href="{{ url_for('announcements.new_announcement') }}" class="btn btn-primary mb-3">
+    + New Announcement
+</a>
+
+<table class="table table-bordered">
+  <tr>
+    <th>Title</th>
+    <th>Message</th>
+    <th>Expires</th>
+    <th>Action</th>
+  </tr>
+
+  {% for a in announcements %}
+  <tr>
+    <td>{{ a.title }}</td>
+    <td>{{ a.message }}</td>
+    <td>{{ a.expiry_date or "—" }}</td>
+    <td>
+      <a href="{{ url_for('announcements.delete_announcement', id=a.id) }}"
+         class="btn btn-sm btn-danger"
+         onclick="return confirm('Delete announcement?')">
+         Delete
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choir System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* Glass Card */
+.container {
+    text-align: center;
+    padding: 50px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: fadeIn 1.5s ease;
+}
+
+/* Title */
+h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+p {
+    opacity: 0.8;
+    margin-bottom: 30px;
+}
+
+/* Buttons */
+.btn {
+    padding: 12px 30px;
+    border-radius: 30px;
+    border: none;
+    margin: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+.login {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+}
+
+.register {
+    background: linear-gradient(45deg, #00ff94, #00c853);
+    color: black;
+}
+
+/* Hover Glow */
+.btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+
+/* Floating Notes */
+.note {
+    position: absolute;
+    font-size: 24px;
+    opacity: 0.7;
+    animation: float linear infinite;
+}
+
+/* Animation */
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-10vh) translateX(50px);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>🎶 Choir Attendance</h1>
+    <p>Manage your choir with harmony & precision</p>
+
+    <a href="/login">
+        <button class="btn login">Login</button>
+    </a>
+
+    <a href="/register">
+        <button class="btn register">Register</button>
+    </a>
+</div>
+
+<!-- Floating Notes -->
+<script>
+const notes = ["🎵","🎶","🎼"];
+
+function createNote() {
+    const note = document.createElement("div");
+    note.classList.add("note");
+
+    note.innerHTML = notes[Math.floor(Math.random() * notes.length)];
+
+    note.style.left = Math.random() * 100 + "vw";
+    note.style.animationDuration = (5 + Math.random() * 5) + "s";
+
+    document.body.appendChild(note);
+
+    setTimeout(() => {
+        note.remove();
+    }, 8000);
+}
+
+setInterval(createNote, 500);
+</script>
+
+</body>
+</html>

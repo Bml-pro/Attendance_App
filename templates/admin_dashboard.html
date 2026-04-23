@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Dashboard Overview</h2>
+
+    <!-- ================= STATS CARDS ================= -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3 text-center">
+                <h6 class="text-muted">Total Members</h6>
+                <h3>{{ total_members }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3 text-center">
+                <h6 class="text-muted">Total Sign-ins</h6>
+                <h3>{{ total_signins }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3 text-center">
+                <h6 class="text-muted">Today</h6>
+                <h3>{{ today_signins }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3 text-center">
+                <h6 class="text-muted">This Week</h6>
+                <h3>{{ weekly_signins }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= CHART ================= -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Attendance Overview</h5>
+            {{ chart_html | safe }}
+        </div>
+    </div>
+
+    <!-- ================= TODAY SIGN-INS ================= -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h5 class="mb-3">Today's Activity</h5>
+
+            {% if today_records %}
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Member</th>
+                        <th>Category</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for s in today_records %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ s.member.name }}</td>
+                        <td>{{ s.member.category }}</td>
+                        <td>
+                            {% if s.sign_time %}
+                                {{ s.sign_time.strftime("%H:%M") }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <div class="text-center text-muted p-4">
+                No activity today
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

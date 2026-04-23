@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="alert alert-success mt-4">
+  <h3>✅ You have successfully signed in!</h3>
+  <p>Time: {{ time }}</p>
+  <a href="{{ url_for('logout') }}" class="btn btn-secondary mt-3">Logout</a>
+</div>
+{% endblock %}

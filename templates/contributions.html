@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Manage Contributions</h2>
+
+<hr>
+
+<h4>Ada (Monthly Fee)</h4>
+
+<div class="card mb-4">
+<div class="card-body">
+
+<form method="POST" action="/record_ada">
+
+<label>Member</label>
+
+<select name="member_id" class="form-select mb-3">
+
+{% for m in members %}
+
+<option value="{{ m.id }}">{{ m.name }}</option>
+
+{% endfor %}
+
+</select>
+
+<label>Month</label>
+
+<input type="month" name="month" class="form-control mb-3">
+
+<button class="btn btn-success">Record Ada (5000 Tsh)</button>
+
+</form>
+
+</div>
+</div>
+
+<hr>
+
+<h4>Rambirambi Contribution</h4>
+
+<div class="card mb-4">
+<div class="card-body">
+
+<form method="POST" action="/record_rambirambi">
+
+<label>Member Paying</label>
+
+<select name="member_id" class="form-select mb-3">
+
+{% for m in members %}
+
+<option value="{{ m.id }}">{{ m.name }}</option>
+
+{% endfor %}
+
+</select>
+
+<label>Rambirambi Event</label>
+
+<select name="event_id" class="form-select mb-3">
+
+{% for e in events %}
+
+<option value="{{ e.id }}">
+{{ e.member.name }} - {{ e.description }}
+</option>
+
+{% endfor %}
+
+</select>
+
+<button class="btn btn-danger">
+Record Rambirambi (2000 Tsh)
+</button>
+
+</form>
+
+</div>
+</div>
+
+<hr>
+
+<h4>Other Contributions</h4>
+
+<div class="card">
+<div class="card-body">
+
+<form method="POST" action="/record_other">
+
+<label>Member</label>
+
+<select name="member_id" class="form-select mb-3">
+
+{% for m in members %}
+
+<option value="{{ m.id }}">{{ m.name }}</option>
+
+{% endfor %}
+
+</select>
+
+<label>Description</label>
+
+<input type="text" name="description" class="form-control mb-3">
+
+<label>Amount</label>
+
+<input type="number" name="amount" class="form-control mb-3">
+
+<button class="btn btn-primary">
+Record Contribution
+</button>
+
+</form>
+
+</div>
+</div>
+
+{% endblock %}

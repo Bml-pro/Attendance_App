@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-body">
+    <h3 class="card-title">Select Your Name to Sign In</h3>
+    <form method="POST">
+      <div class="mb-3">
+        <label for="category" class="form-label">Select Voice Category:</label>
+        <select id="category" class="form-select" required>
+          <option value="" selected disabled>-- Select Category --</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="member" class="form-label">Select Your Name:</label>
+        <select name="member_id" id="member" class="form-select" required>
+          <option value="" selected disabled>-- Select Name --</option>
+          <!-- Options will be populated by JS -->
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const membersByCategory = {{ members_by_category|tojson }};
+  const categorySelect = document.getElementById("category");
+  const memberSelect = document.getElementById("member");
+
+  categorySelect.addEventListener("change", function() {
+    const category = this.value;
+    const members = membersByCategory[category] || [];
+
+    // Clear previous options
+    memberSelect.innerHTML = '<option value="" selected disabled>-- Select Name --</option>';
+
+    // Populate new options
+    members.forEach(m => {
+      const option = document.createElement("option");
+      option.value = m.id;
+      option.text = m.name;
+      memberSelect.appendChild(option);
+    });
+  });
+</script>
+{% endblock %}

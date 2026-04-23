@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Choir Attendance App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100vh;
+      background: #1f2937;
+      color: white;
+      padding-top: 20px;
+    }
+
+    .sidebar h4 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background: #374151;
+      color: white;
+    }
+
+    .sidebar a.active {
+      background: #2563eb;
+      color: white;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: white;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Cards */
+    .card {
+      border-radius: 15px;
+      border: none;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      transition: 0.3s;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+{% if current_user.is_authenticated and current_user.is_admin %}
+<div class="sidebar">
+
+  <h4>🎶 Choir Admin</h4>
+
+  <a class="{% if request.endpoint=='admin_dashboard' %}active{% endif %}"
+     href="{{ url_for('admin_dashboard') }}">
+     <i class="bi bi-speedometer2"></i> Dashboard
+  </a>
+
+  <a class="{% if request.endpoint=='index' %}active{% endif %}"
+     href="{{ url_for('index') }}">
+     <i class="bi bi-house"></i> Home
+  </a>
+
+  <a class="{% if request.endpoint=='today_attendance' %}active{% endif %}"
+     href="{{ url_for('today') }}">
+     <i class="bi bi-calendar-check"></i> Today Attendance
+  </a>
+
+  <a class="{% if request.endpoint=='members' %}active{% endif %}"
+     href="{{ url_for('members') }}">
+     <i class="bi bi-people"></i> Members
+  </a>
+
+  <a class="{% if request.endpoint=='announcements' %}active{% endif %}"
+     href="{{ url_for('announcements') }}">
+     <i class="bi bi-megaphone"></i> Announcements
+  </a>
+
+  <a class="{% if request.endpoint=='contributions' %}active{% endif %}"
+     href="{{ url_for('contributions') }}">
+     <i class="bi bi-cash-stack"></i> Contributions
+  </a>
+
+  <hr style="border-color:#444;">
+
+  <a href="{{ url_for('logout') }}">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>
+
+</div>
+{% endif %}
+
+<!-- ================= CONTENT ================= -->
+<div class="content">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <strong>Choir Attendance System</strong>
+    </div>
+
+    <div>
+      {% if current_user.is_authenticated %}
+        <span class="me-3">👤 {{ current_user.username }}</span>
+        <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-sm btn-primary">Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Page Content -->
+  {% block content %}{% endblock %}
+
+</div>
+
+<!-- ================= MEMBER SIMPLE NAV ================= -->
+{% if current_user.is_authenticated and not current_user.is_admin %}
+<div class="container mt-3">
+  <a href="{{ url_for('member_sign') }}" class="btn btn-primary">Sign Attendance</a>
+  <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+</div>
+{% endif %}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
