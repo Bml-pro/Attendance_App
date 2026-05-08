@@ -18,6 +18,19 @@ from functools import wraps
 
 from models import Base, Member, SignIn, User, Announcement, Contribution, ContributionType, RambirambiEvent
 
+import pandas as pd
+from openpyxl import Workbook
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer
+)
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
 
 # -------------------------
 # Flask App
@@ -106,9 +119,62 @@ def welcome():
 @app.route("/home")
 @login_required
 def index():
-    announcements = db_session.query(Announcement).order_by(Announcement.created_at.desc()).all()
-    return render_template("index.html", announcements=announcements)
 
+    announcements = db_session.query(Announcement)\
+        .order_by(Announcement.created_at.desc()).all()
+
+    # =========================
+    # Choir Practice Days
+    # =========================
+    practice_days = [
+        "Tuesday",
+        "Wednesday",
+        "Saturday"
+    ]
+
+    today = datetime.now()
+
+    current_day = today.strftime("%A")
+
+    weekday_map = {
+        "Monday": 0,
+        "Tuesday": 1,
+        "Wednesday": 2,
+        "Thursday": 3,
+        "Friday": 4,
+        "Saturday": 5,
+        "Sunday": 6
+    }
+
+    current_index = weekday_map[current_day]
+
+    next_practice = None
+    smallest_diff = 7
+
+    for day in practice_days:
+
+        practice_index = weekday_map[day]
+
+        diff = (practice_index - current_index) % 7
+
+        if diff == 0:
+            diff = 7
+
+        if diff < smallest_diff:
+            smallest_diff = diff
+            next_practice = day
+
+    # =========================
+    # Signing Status
+    # =========================
+    signing_open = current_day in practice_days
+
+    return render_template(
+        "index.html",
+        announcements=announcements,
+        next_practice=next_practice,
+        signing_open=signing_open
+    )
 
 # -------------------------
 # Login
@@ -234,10 +300,129 @@ def today():
 
     return render_template("today.html", signins=today_signins)
 
+@app.route("/today/export")
+@admin_required
+def export_today_attendance():
 
-# -------------------------
+    export_type = request.args.get("type", "excel")
+
+    today_records = db_session.query(SignIn)\
+        .filter(SignIn.sign_date == date.today()).all()
+
+    attendance_data = []
+
+    for s in today_records:
+
+        if s.sign_time:
+
+            time_str = s.sign_time.strftime("%H:%M")
+
+            if time_str <= "18:30":
+                status = "On Time"
+
+            elif time_str <= "19:00":
+                status = "Late"
+
+            else:
+                status = "Very Late"
+
+        else:
+            time_str = "-"
+            status = "No Time"
+
+        attendance_data.append({
+            "Member": s.member.name,
+            "Category": s.member.category,
+            "Sign Time": time_str,
+            "Status": status
+        })
+
+    # ==========================================
+    # EXPORT EXCEL
+    # ==========================================
+    if export_type == "excel":
+
+        import pandas as pd
+
+        df = pd.DataFrame(attendance_data)
+
+        output = BytesIO()
+
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Today Attendance")
+
+        output.seek(0)
+
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name="today_attendance.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    # ==========================================
+    # EXPORT PDF
+    # ==========================================
+    elif export_type == "pdf":
+
+        buffer = BytesIO()
+
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+
+        elements = []
+
+        styles = getSampleStyleSheet()
+
+        title = Paragraph(
+            "Today's Attendance Report",
+            styles["Heading1"]
+        )
+
+        elements.append(title)
+        elements.append(Spacer(1, 12))
+
+        table_data = [[
+            "Member",
+            "Category",
+            "Sign Time",
+            "Status"
+        ]]
+
+        for row in attendance_data:
+            table_data.append([
+                row["Member"],
+                row["Category"],
+                row["Sign Time"],
+                row["Status"]
+            ])
+
+        table = Table(table_data)
+
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+        ]))
+
+        elements.append(table)
+
+        doc.build(elements)
+
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name="today_attendance.pdf",
+            mimetype="application/pdf"
+        )
+
+# =================
 # Members
-# -------------------------
+# =================
 @app.route("/members", methods=["GET", "POST"])
 @admin_required
 def members():
@@ -360,6 +545,222 @@ def announcements():
         .order_by(Announcement.created_at.desc()).all()
 
     return render_template("announcements.html", announcements=announcements)
+
+#==========================
+# Statistics
+#==========================
+@app.route("/statistics")
+@admin_required
+def attendance_statistics():
+
+    # =========================
+    # Filters
+    # =========================
+    category = request.args.get("category", "All")
+    period = request.args.get("period", "monthly")
+
+    today = date.today()
+
+    # =========================
+    # Date Range
+    # =========================
+    if period == "weekly":
+
+        start_date = today - timedelta(days=today.weekday())
+        total_days = 3   # Tue, Wed, Sat
+
+    else:
+        # Monthly
+        start_date = today.replace(day=1)
+        total_days = 12   # approx choir meetings per month
+
+    # =========================
+    # Members Query
+    # =========================
+    query = db_session.query(Member)
+
+    if category != "All":
+        query = query.filter(Member.category == category)
+
+    members = query.order_by(Member.name).all()
+
+    stats = []
+
+    for member in members:
+
+        signins = db_session.query(SignIn)\
+            .filter(
+                SignIn.member_id == member.id,
+                SignIn.sign_date >= start_date
+            ).all()
+
+        sign_count = len(signins)
+
+        percentage = round((sign_count / total_days) * 100, 1)
+
+        dates = [
+            s.sign_date.strftime("%d %b")
+            for s in signins
+        ]
+
+        stats.append({
+            "name": member.name,
+            "category": member.category,
+            "count": sign_count,
+            "percentage": percentage,
+            "dates": ", ".join(dates)
+        })
+
+    return render_template(
+        "statistics.html",
+        stats=stats,
+        category=category,
+        period=period
+    )
+
+#================================================
+# Export Attendance Statistics to Excel or PDF
+#================================================
+@app.route("/statistics/export")
+@admin_required
+def export_statistics():
+
+    category = request.args.get("category", "All")
+    period = request.args.get("period", "monthly")
+    export_type = request.args.get("type", "excel")
+
+    today = date.today()
+
+    # =========================
+    # Date Range
+    # =========================
+    if period == "weekly":
+        start_date = today - timedelta(days=today.weekday())
+        total_days = 3
+    else:
+        start_date = today.replace(day=1)
+        total_days = 12
+
+    # =========================
+    # Members Query
+    # =========================
+    query = db_session.query(Member)
+
+    if category != "All":
+        query = query.filter(Member.category == category)
+
+    members = query.order_by(Member.name).all()
+
+    stats_data = []
+
+    for member in members:
+
+        signins = db_session.query(SignIn)\
+            .filter(
+                SignIn.member_id == member.id,
+                SignIn.sign_date >= start_date
+            ).all()
+
+        sign_count = len(signins)
+
+        percentage = round((sign_count / total_days) * 100, 1)
+
+        dates = [
+            s.sign_date.strftime("%d %b %Y")
+            for s in signins
+        ]
+
+        stats_data.append({
+            "Name": member.name,
+            "Category": member.category,
+            "Sign-ins": sign_count,
+            "Attendance %": f"{percentage}%",
+            "Signing History": ", ".join(dates)
+        })
+
+    # =====================================================
+    # EXPORT EXCEL
+    # =====================================================
+    if export_type == "excel":
+
+        df = pd.DataFrame(stats_data)
+
+        output = BytesIO()
+
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Statistics")
+
+        output.seek(0)
+
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name="attendance_statistics.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    # =====================================================
+    # EXPORT PDF
+    # =====================================================
+    elif export_type == "pdf":
+
+        buffer = BytesIO()
+
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+
+        elements = []
+
+        styles = getSampleStyleSheet()
+
+        title = Paragraph(
+            f"Attendance Statistics ({period.capitalize()})",
+            styles["Heading1"]
+        )
+
+        elements.append(title)
+        elements.append(Spacer(1, 12))
+
+        table_data = [[
+            "Name",
+            "Category",
+            "Sign-ins",
+            "Attendance %",
+            "Signing History"
+        ]]
+
+        for row in stats_data:
+            table_data.append([
+                row["Name"],
+                row["Category"],
+                str(row["Sign-ins"]),
+                row["Attendance %"],
+                row["Signing History"]
+            ])
+
+        table = Table(table_data)
+
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+        ]))
+
+        elements.append(table)
+
+        doc.build(elements)
+
+        buffer.seek(0)
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name="attendance_statistics.pdf",
+            mimetype="application/pdf"
+        )
+
 
 
 # -------------------------

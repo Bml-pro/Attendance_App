@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">Attendance Statistics</h2>
+
+    <!-- ================= FILTERS ================= -->
+    <div class="card shadow-sm p-3 mb-4">
+
+        <form method="GET" class="row g-3">
+
+            <!-- Category -->
+            <div class="col-md-4">
+                <label class="form-label">Category</label>
+
+                <select name="category" class="form-select">
+
+                    <option value="All"
+                        {% if category == "All" %}selected{% endif %}>
+                        All
+                    </option>
+
+                    <option value="Soprano"
+                        {% if category == "Soprano" %}selected{% endif %}>
+                        Soprano
+                    </option>
+
+                    <option value="Alto"
+                        {% if category == "Alto" %}selected{% endif %}>
+                        Alto
+                    </option>
+
+                    <option value="Tenor"
+                        {% if category == "Tenor" %}selected{% endif %}>
+                        Tenor
+                    </option>
+
+                    <option value="Bass"
+                        {% if category == "Bass" %}selected{% endif %}>
+                        Bass
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- Period -->
+            <div class="col-md-4">
+                <label class="form-label">Period</label>
+
+                <select name="period" class="form-select">
+
+                    <option value="weekly"
+                        {% if period == "weekly" %}selected{% endif %}>
+                        Weekly
+                    </option>
+
+                    <option value="monthly"
+                        {% if period == "monthly" %}selected{% endif %}>
+                        Monthly
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- Button -->
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary w-100">
+                    Filter Statistics
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+
+    <!-- Excel Export -->
+    <a href="{{ url_for('export_statistics', category=category, period=period, type='excel') }}"
+       class="btn btn-success">
+        Export Excel
+    </a>
+
+    <!-- PDF Export -->
+    <a href="{{ url_for('export_statistics', category=category, period=period, type='pdf') }}"
+       class="btn btn-danger">
+        Export PDF
+    </a>
+
+</div>
+
+    <!-- ================= TABLE ================= -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                {{ period.capitalize() }} Attendance Summary
+            </h5>
+
+            {% if stats %}
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Sign-ins</th>
+                            <th>Attendance %</th>
+                            <th>Signing History</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for s in stats %}
+
+                        <tr>
+
+                            <td>{{ loop.index }}</td>
+
+                            <td>{{ s.name }}</td>
+
+                            <td>{{ s.category }}</td>
+
+                            <td>{{ s.count }}</td>
+
+                            <td>
+
+                                {% if s.percentage >= 75 %}
+
+                                    <span class="badge bg-success">
+                                        {{ s.percentage }}%
+                                    </span>
+
+                                {% elif s.percentage >= 50 %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        {{ s.percentage }}%
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-danger">
+                                        {{ s.percentage }}%
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                {% if s.dates %}
+                                    {{ s.dates }}
+                                {% else %}
+                                    <span class="text-muted">
+                                        No sign-ins
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="text-center text-muted p-4">
+                No attendance records found
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

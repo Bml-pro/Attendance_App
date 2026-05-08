@@ -13,6 +13,67 @@ Sign Attendance
 </a>
 </div>
 
+<!-- ================= PRACTICE INFO ================= -->
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <h4 class="mb-3">
+            🎶 Choir Practice Schedule
+        </h4>
+
+        <div class="row">
+
+            <!-- Next Practice -->
+            <div class="col-md-6 mb-3">
+
+                <div class="p-3 bg-light rounded">
+
+                    <h6 class="text-muted">
+                        Next Choir Practice
+                    </h6>
+
+                    <h3>
+                        {{ next_practice }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+            <!-- Signing Status -->
+            <div class="col-md-6 mb-3">
+
+                <div class="p-3 bg-light rounded">
+
+                    <h6 class="text-muted">
+                        Attendance Signing
+                    </h6>
+
+                    {% if signing_open %}
+
+                        <span class="badge bg-success fs-6">
+                            Open Today
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-danger fs-6">
+                            Closed Today
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <h3 class="mt-5">Choir Announcements</h3>
 

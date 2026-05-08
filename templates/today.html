@@ -13,6 +13,22 @@
 
     {% if signins %}
 
+    <div class="d-flex gap-2 mb-3">
+
+    <!-- Excel Export -->
+    <a href="{{ url_for('export_today_attendance', type='excel') }}"
+       class="btn btn-success">
+        Export Excel
+    </a>
+
+    <!-- PDF Export -->
+    <a href="{{ url_for('export_today_attendance', type='pdf') }}"
+       class="btn btn-danger">
+        Export PDF
+    </a>
+
+</div>
+
     <!-- Table Card -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
